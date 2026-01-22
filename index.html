@@ -1,288 +1,356 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IVL SYSTEM | v3.0</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IVL VIP SYSTEM</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 
-    <style>
-        :root { --bg-dark: #050505; --card-bg: #0f0f12; --accent: #3b82f6; }
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at top right, #1e1b4b, transparent);
-            color: #f4f4f5;
-            min-height: 100vh;
-        }
-        .glass-card {
-            background: rgba(15, 15, 18, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-        }
-        .input-style {
-            background: #16161a;
-            border: 1px solid #2d2d30;
-            color: white;
-            transition: 0.3s;
-        }
-        .input-style:focus { border-color: var(--accent); outline: none; }
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            transition: 0.2s;
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
-        .admin-table input { background: transparent; border: 1px solid rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; }
-    </style>
+<style>
+:root{
+  --bg:#020205;
+  --card:#0b0f14;
+  --green:#00ff88;
+  --border:rgba(0,255,136,.35);
+}
+body{
+  font-family:'Cairo',sans-serif;
+  background:radial-gradient(circle at top right,#003d2a,transparent),var(--bg);
+  color:white;
+}
+.orbitron{font-family:'Orbitron',sans-serif}
+.card{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:22px;
+  box-shadow:0 0 30px rgba(0,255,136,.15);
+  padding:16px;
+}
+.input, textarea, select{
+  background:#05070c;
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:14px;
+  color:white;
+  width:100%;
+}
+.input:focus, textarea:focus, select:focus{outline:none;border-color:var(--green)}
+.btn{
+  background:linear-gradient(135deg,var(--green),#00c26e);
+  color:black;
+  font-weight:900;
+  padding:12px;
+  border-radius:14px;
+  width:100%;
+}
+.btn:hover{opacity:.9;transform:translateY(-2px);transition:0.2s}
+.modal{
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.modal-box{
+  background:var(--card);
+  border:2px solid var(--green);
+  border-radius:16px;
+  padding:20px;
+  max-width:350px;
+  text-align:center;
+}
+.modal-box h2{color:var(--green);margin-bottom:12px}
+.modal-box button{
+  padding:6px 14px;
+  margin:0 4px;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  font-size:0.85rem;
+  cursor:pointer;
+}
+/* إعلان */
+#announcement{
+  background:rgba(0,255,136,0.1);
+  border:1px solid var(--green);
+  border-radius:12px;
+  padding:10px;
+  text-align:right;
+  direction:rtl;
+  font-weight:bold;
+  color:var(--green);
+  margin-bottom:10px;
+  word-break: break-word;
+}
+</style>
 </head>
-<body class="p-4 md:p-8">
 
-    <div id="auth" class="min-h-screen flex items-center justify-center">
-        <div class="glass-card w-full max-w-md p-8 text-center space-y-6">
-            <h1 class="text-4xl font-black text-white italic">IVL <span class="text-blue-500">SYS</span></h1>
-            <div class="space-y-4">
-                <input id="lu" class="input-style w-full p-4 rounded-xl" placeholder="اسم المستخدم">
-                <input id="lp" type="password" class="input-style w-full p-4 rounded-xl" placeholder="كلمة السر">
-                <button onclick="login()" class="btn-primary w-full py-4 rounded-xl font-bold italic">تسجيل الدخول</button>
-                <button onclick="showReg()" class="text-gray-500 text-sm">إنشاء حساب جديد</button>
-            </div>
-        </div>
+<body class="p-4">
+
+<!-- AUTH -->
+<div id="auth" class="min-h-screen flex items-center justify-center">
+  <div class="card w-full max-w-md space-y-4 text-center">
+    <h1 class="orbitron text-4xl text-green">IVL VIP</h1>
+
+    <input id="loginUser" class="input" placeholder="اسم المستخدم">
+    <input id="loginPass" type="password" class="input" placeholder="كلمة السر">
+    <button onclick="login()" class="btn">تسجيل الدخول</button>
+
+    <hr class="border border-green/20 my-2">
+
+    <div class="text-xs opacity-50">إنشاء حساب جديد</div>
+    <input id="ru" class="input text-sm" placeholder="اسم المستخدم">
+    <input id="rp" type="password" class="input text-sm" placeholder="كلمة السر">
+    <input id="rc" class="input text-sm" placeholder="اسم الشخصية">
+    <input id="rg" class="input text-sm" placeholder="اسم النقابة">
+    <button onclick="register()" class="btn text-sm">إنشاء حساب</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden max-w-6xl mx-auto space-y-4">
+
+<!-- إعلان يظهر عند الجميع -->
+<div id="announcement"></div>
+
+<header class="card flex justify-between items-center">
+  <div>
+    <h2 id="meChar" class="text-xl font-black"></h2>
+    <p id="meGuild" class="text-xs text-green"></p>
+  </div>
+  <div>
+    <div class="text-xs opacity-60">رصيد النقاط</div>
+    <div id="mePoints" class="orbitron text-2xl text-green"></div>
+  </div>
+</header>
+
+<!-- لوحة الأدمن -->
+<div id="adminPanel" class="hidden space-y-4">
+
+  <!-- كتابة إعلان -->
+  <div class="card">
+    <h4 class="text-green font-bold">📢 كتابة إعلان</h4>
+    <textarea id="announceInput" class="input mb-2" placeholder="اكتب نص الإعلان هنا"></textarea>
+    <button onclick="updateAnnouncement()" class="btn text-sm">نشر الإعلان</button>
+  </div>
+
+  <!-- إدارة النقاط -->
+  <div class="card">
+    <h4 class="text-green font-bold">إدارة النقاط</h4>
+    <select id="pointUser" class="input mb-2"></select>
+    <input id="pointAmount" class="input mb-2" placeholder="عدد النقاط">
+    <div class="flex gap-2">
+      <button onclick="confirmAction('addPoints')" class="btn text-sm">إضافة نقاط</button>
+      <button onclick="confirmAction('removePoints')" class="btn text-sm">حذف نقاط</button>
     </div>
+  </div>
 
-    <div id="reg" class="hidden min-h-screen flex items-center justify-center">
-        <div class="glass-card w-full max-w-md p-8 text-center space-y-6">
-            <h2 class="text-2xl font-bold text-white">عضوية جديدة</h2>
-            <div class="space-y-4">
-                <input id="ru" class="input-style w-full p-4 rounded-xl text-center" placeholder="اسم المستخدم">
-                <input id="rp" type="password" class="input-style w-full p-4 rounded-xl text-center" placeholder="كلمة السر">
-                <button onclick="register()" class="btn-primary w-full py-4 rounded-xl font-bold">تأكيد الحساب</button>
-                <button onclick="backLogin()" class="text-gray-500 text-sm">رجوع</button>
-            </div>
-        </div>
+  <!-- إدارة السلع -->
+  <div class="card">
+    <h4 class="text-green font-bold">إدارة السلع</h4>
+    <input id="itemName" class="input mb-2" placeholder="اسم السلعة">
+    <input id="itemPrice" class="input mb-2" placeholder="السعر">
+    <input id="itemCategory" class="input mb-2" placeholder="الفئة">
+    <button onclick="confirmAction('addItem')" class="btn text-sm">إضافة السلعة</button>
+  </div>
+
+  <!-- أعلى 3 لاعبين -->
+  <div class="card">
+    <h4 class="text-green font-bold">🏆 أعلى 3 لاعبين</h4>
+    <div id="topUsers" class="text-sm space-y-1"></div>
+  </div>
+
+  <!-- حذف حسابات الأعضاء -->
+  <div class="card">
+    <h4 class="text-red-500 font-bold">🗑️ حذف حساب عضو</h4>
+    <select id="deleteUserSelect" class="input mb-2"></select>
+    <button onclick="deleteUser()" class="btn text-sm bg-red-500 hover:bg-red-600">حذف الحساب</button>
+  </div>
+
+</div>
+
+<!-- العروض -->
+<div class="card">
+  <h3 class="text-green mb-2">🛒 العروض المتاحة</h3>
+  <div id="market" class="grid sm:grid-cols-2 gap-4"></div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <h2 id="modalTitle"></h2>
+    <p id="modalText" class="mb-4"></p>
+    <div>
+      <button id="modalConfirm" class="btn">تأكيد</button>
+      <button id="modalCancel" class="btn">إلغاء</button>
     </div>
+  </div>
+</div>
 
-    <div id="app" class="hidden max-w-6xl mx-auto space-y-6">
-        <header class="glass-card p-6 flex justify-between items-center border-b border-blue-500/20">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center font-bold"><i class="fas fa-user"></i></div>
-                <div>
-                    <h2 id="me_user" class="text-xl font-bold"></h2>
-                    <p id="me_role" class="text-xs text-blue-400 font-mono uppercase"></p>
-                </div>
-            </div>
-            <div class="text-left bg-blue-500/10 px-6 py-2 rounded-2xl border border-blue-500/20">
-                <span class="text-xs text-gray-400 block uppercase">رصيد النقاط</span>
-                <span id="me_points" class="text-2xl font-black text-blue-400"></span>
-            </div>
-        </header>
+<script>
+/* ===== DATA ===== */
+let db = JSON.parse(localStorage.getItem("ivl-db"));
+if(!db || !db.users){
+  db={users:[{id:1,user:"admin",pass:"5365360",char:"ADMIN",guild:"IVL ROOT",points:999999,role:"admin"}],items:[],announcement:"مرحباً بكم!"};
+  localStorage.setItem("ivl-db",JSON.stringify(db));
+}
+let session=null;
 
-        <div class="grid lg:grid-cols-2 gap-6">
-            <div class="glass-card p-6">
-                <div class="flex items-center gap-2 mb-6 text-blue-500">
-                    <i class="fas fa-shopping-cart"></i>
-                    <h3 class="font-bold uppercase tracking-widest text-sm">المتجر المتاح</h3>
-                </div>
-                <div id="shop_items" class="space-y-3"></div>
-            </div>
+/* ===== AUTH ===== */
+function login(){
+  const u=document.getElementById("loginUser").value.trim();
+  const p=document.getElementById("loginPass").value.trim();
+  const f=db.users.find(x=>x.user===u && x.pass===p);
+  if(!f){alert("❌ بيانات غير صحيحة");return;}
+  session=f; init();
+}
+function register(){
+  const u=ru.value.trim(),p=rp.value.trim(),c=rc.value.trim(),g=rg.value.trim();
+  if(!u||!p||!c||!g){alert("أكمل كل الحقول");return;}
+  if(db.users.find(x=>x.user===u)){alert("المستخدم موجود");return;}
+  db.users.push({id:Date.now(),user:u,pass:p,char:c,guild:g,points:0,role:"member"});
+  localStorage.setItem("ivl-db",JSON.stringify(db));
+  alert("✅ تم إنشاء الحساب");
+}
 
-            <div class="glass-card p-6">
-                <div class="flex items-center gap-2 mb-6 text-yellow-500">
-                    <i class="fas fa-trophy"></i>
-                    <h3 class="font-bold uppercase tracking-widest text-sm">قائمة المستخدمين</h3>
-                </div>
-                <div id="users_list" class="space-y-2 overflow-y-auto max-h-[400px]"></div>
-            </div>
-        </div>
+/* ===== INIT ===== */
+function init(){
+  auth.classList.add("hidden");
+  app.classList.remove("hidden");
+  meChar.textContent=session.char;
+  meGuild.textContent=session.guild;
+  mePoints.textContent=session.points;
 
-        <div class="flex justify-center gap-4">
-            <button id="adminBtn" onclick="openAdmin()" class="hidden bg-white/5 hover:bg-white/10 px-8 py-3 rounded-xl border border-white/10 transition flex items-center gap-2">
-                <i class="fas fa-cog text-blue-400"></i> لوحة الإدارة الكاملة
-            </button>
-            <button onclick="logout()" class="bg-red-500/10 text-red-500 px-8 py-3 rounded-xl border border-red-500/20">خروج</button>
-        </div>
+  announcement.textContent = db.announcement || "";
+
+  if(session.role==="admin"){
+    adminPanel.classList.remove("hidden");
+    updatePointUsers();
+    updateTopUsers();
+    updateDeleteUserList();
+  }
+
+  renderMarket();
+}
+
+/* ===== UPDATE ANNOUNCEMENT ===== */
+function updateAnnouncement(){
+  const text = announceInput.value.trim();
+  if(!text){alert("اكتب نص الإعلان"); return;}
+  db.announcement = text;
+  localStorage.setItem("ivl-db",JSON.stringify(db));
+  announcement.textContent = text;
+  announceInput.value = "";
+}
+
+/* ===== DELETE USER (Admin Only) ===== */
+function updateDeleteUserList(){
+  deleteUserSelect.innerHTML = db.users
+    .filter(u => u.role !== "admin")
+    .map(u => `<option value="${u.id}">${u.char} (${u.user})</option>`)
+    .join("");
+}
+
+function deleteUser(){
+  const uid = +deleteUserSelect.value;
+  if(!uid){alert("اختر حسابًا للحذف"); return;}
+  if(!confirm("هل أنت متأكد من حذف هذا الحساب نهائيًا؟ ❌")) return;
+
+  db.users = db.users.filter(u => u.id !== uid);
+  localStorage.setItem("ivl-db", JSON.stringify(db));
+  alert("تم حذف الحساب ✅");
+  updateDeleteUserList();
+  updatePointUsers();
+  updateTopUsers();
+}
+
+/* ===== MARKET ===== */
+function renderMarket(){
+  market.innerHTML=db.items.map(i=>`
+    <div class="card flex justify-between p-2">
+      <div>
+        <b>${i.name}</b>
+        <div class="text-green text-xs">${i.price} نقطة</div>
+        <div class="text-xs text-green/70">الفئة: ${i.category||'عام'}</div>
+      </div>
+      <button class="btn text-sm" onclick="confirmAction('buy',${i.id})">شراء</button>
     </div>
+  `).join("");
+}
 
-    <div id="admin" class="hidden max-w-6xl mx-auto space-y-8 pb-10">
-        <div class="flex justify-between items-center">
-            <h2 class="text-3xl font-black italic">CONTROL PANEL</h2>
-            <button onclick="backToApp()" class="bg-blue-600 px-6 py-2 rounded-lg text-sm font-bold">حفظ والعودة</button>
-        </div>
+/* ===== MODAL ===== */
+function confirmAction(type,id=null){
+  modal.classList.remove("hidden");
+  let title="",text="";
+  switch(type){
+    case 'buy':
+      let item=db.items.find(x=>x.id===id);
+      title="تأكيد الشراء"; text=`هل أنت متأكد من شراء "${item.name}" مقابل ${item.price} نقطة؟`; break;
+    case 'addPoints': title="تأكيد الإضافة"; text="هل أنت متأكد من إضافة النقاط؟"; break;
+    case 'removePoints': title="تأكيد الحذف"; text="هل أنت متأكد من حذف النقاط؟"; break;
+    case 'addItem': title="تأكيد الإضافة"; text="هل أنت متأكد من إضافة السلعة؟"; break;
+  }
+  modalTitle.textContent=title; modalText.textContent=text;
+  modalConfirm.onclick=()=>{ modal.classList.add("hidden"); handleAction(type,id); }
+  modalCancel.onclick=()=>{ modal.classList.add("hidden"); }
+}
 
-        <div class="glass-card p-6">
-            <h3 class="text-blue-500 font-bold mb-4"><i class="fas fa-users-cog ml-2"></i> إدارة المستخدمين والنقاط</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-right admin-table">
-                    <thead>
-                        <tr class="text-gray-500 text-xs border-b border-white/5">
-                            <th class="p-3">المستخدم</th>
-                            <th class="p-3">النقاط</th>
-                            <th class="p-3">الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin_users_table"></tbody>
-                </table>
-            </div>
-        </div>
+/* ===== HANDLE ACTION ===== */
+function handleAction(type,id){
+  switch(type){
+    case 'buy':
+      let item=db.items.find(x=>x.id===id);
+      if(session.points<item.price){alert("رصيدك غير كافي");return;}
+      session.points-=item.price;
+      localStorage.setItem("ivl-db",JSON.stringify(db));
+      mePoints.textContent=session.points;
+      let msg=`*˹🫀˼•طـــلـــب شـــراء:•*\n\n*✘ الٕمـسـتـخـدم: 〘 ${session.char} 〙•*\n*✘ الـسـلـعـة: 〘 ${item.name} 〙•*\n*✘ الـسـعـر: 〘 ${item.price} 〙•*\n> *𝑰.𝑽.𝑳  𖠛 🌙黒 ايــࢪفـال*`;
+      window.open("https://wa.me/963936427273?text="+encodeURIComponent(msg),"_blank");
+      break;
+    case 'addPoints':
+      let uid=+pointUser.value,amt=+pointAmount.value;
+      if(!amt||amt<=0){alert("أدخل رقم صحيح"); return;}
+      let u=db.users.find(x=>x.id===uid);
+      u.points+=amt;
+      if(u.id===session.id) mePoints.textContent=session.points;
+      localStorage.setItem("ivl-db",JSON.stringify(db));
+      updateTopUsers();
+      break;
+    case 'removePoints':
+      uid=+pointUser.value; amt=+pointAmount.value;
+      if(!amt||amt<=0){alert("أدخل رقم صحيح"); return;}
+      u=db.users.find(x=>x.id===uid);
+      u.points=Math.max(0,u.points-amt);
+      if(u.id===session.id) mePoints.textContent=session.points;
+      localStorage.setItem("ivl-db",JSON.stringify(db));
+      updateTopUsers();
+      break;
+    case 'addItem':
+      let name=itemName.value.trim();
+      let price=+itemPrice.value;
+      let cat=itemCategory.value.trim();
+      if(!name||!price){alert("أكمل الاسم والسعر"); return;}
+      db.items.push({id:Date.now(),name,price,category:cat});
+      localStorage.setItem("ivl-db",JSON.stringify(db));
+      itemName.value=itemPrice.value=itemCategory.value="";
+      renderMarket();
+      break;
+  }
+}
 
-        <div class="glass-card p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-green-500 font-bold"><i class="fas fa-store-alt ml-2"></i> إدارة محتوى المتجر</h3>
-                <button onclick="addShopItem()" class="bg-green-600/20 text-green-500 px-4 py-1 rounded-lg text-xs border border-green-500/30 font-bold">+ إضافة سلعة</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-right admin-table">
-                    <thead>
-                        <tr class="text-gray-500 text-xs border-b border-white/5">
-                            <th class="p-3">اسم السلعة</th>
-                            <th class="p-3">السعر (نقطة)</th>
-                            <th class="p-3">التحكم</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin_shop_table"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+/* ===== ADMIN FUNCTIONS ===== */
+function updatePointUsers(){ pointUser.innerHTML=db.users.map(u=>`<option value="${u.id}">${u.char} (${u.user})</option>`).join(""); }
+function updateTopUsers(){
+  const top=db.users.slice().sort((a,b)=>b.points-a.points).slice(0,3);
+  topUsers.innerHTML=top.map((u,i)=>`${i+1}. ${u.char} - ${u.points} نقطة`).join("<br>");
+}
+</script>
 
-    <script>
-        const WHATSAPP_NUM = "963936427273";
-        const KEY = "IVL_V3_DATABASE";
-
-        let db = JSON.parse(localStorage.getItem(KEY)) || {
-            users: [{ id: 1, user: "admin", pass: "5365360", points: 0, role: "admin" }],
-            shop: [
-                { id: 1, name: "عضوية VIP", price: 5000 },
-                { id: 2, name: "زيادة رصيد (10k)", price: 10000 }
-            ],
-            logs: []
-        };
-
-        let me = null;
-        const save = () => localStorage.setItem(KEY, JSON.stringify(db));
-
-        /* AUTH LOGIC */
-        function login() {
-            let u = lu.value, p = lp.value;
-            let f = db.users.find(x => x.user === u && x.pass === p);
-            if (!f) return alert("خطأ في البيانات");
-            me = f;
-            document.getElementById('auth').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            render();
-        }
-
-        function showReg() { auth.classList.add('hidden'); reg.classList.remove('hidden'); }
-        function backLogin() { reg.classList.add('hidden'); auth.classList.remove('hidden'); }
-        function logout() { location.reload(); }
-        function backToApp() { admin.classList.add('hidden'); app.classList.remove('hidden'); render(); }
-
-        function register() {
-            let u = ru.value, p = rp.value;
-            if (!u || !p) return alert("أكمل البيانات");
-            db.users.push({ id: Date.now(), user: u, pass: p, points: 0, role: "user" });
-            save(); backLogin();
-        }
-
-        /* UI RENDERING */
-        function render() {
-            me_user.textContent = me.user;
-            me_role.textContent = me.role;
-            me_points.textContent = me.points.toLocaleString();
-            if (me.role === "admin") adminBtn.classList.remove('hidden');
-
-            // Render Shop for Users
-            shop_items.innerHTML = db.shop.map(i => `
-                <div class="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:border-blue-500/30 transition">
-                    <span class="font-bold text-sm">${i.name}</span>
-                    <button onclick="buyRequest('${i.name}', ${i.price})" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-xs font-bold transition">
-                        ${i.price.toLocaleString()} نقطة
-                    </button>
-                </div>
-            `).join("");
-
-            // Render Leaderboard
-            users_list.innerHTML = db.users.sort((a,b)=>b.points-a.points).map(u => `
-                <div class="flex justify-between items-center p-3 mb-2 bg-white/5 rounded-xl border-r-4 border-blue-500">
-                    <span class="text-sm font-bold text-gray-300"><i class="fas fa-user ml-2 opacity-50"></i> ${u.user}</span>
-                    <span class="font-mono text-blue-400 font-bold">${u.points.toLocaleString()}</span>
-                </div>
-            `).join("");
-        }
-
-        function buyRequest(name, price) {
-            const url = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(`مرحباً، أود شراء ${name} بسعر ${price} نقطة. المستخدم: ${me.user}`)}`;
-            window.open(url, '_blank');
-        }
-
-        /* ADMIN SHOP & USER CONTROL */
-        function openAdmin() {
-            app.classList.add('hidden');
-            admin.classList.remove('hidden');
-            renderAdminUsers();
-            renderAdminShop();
-        }
-
-        function renderAdminUsers() {
-            admin_users_table.innerHTML = db.users.map(u => `
-                <tr class="border-b border-white/5">
-                    <td class="p-3 font-bold text-sm text-gray-400">${u.user}</td>
-                    <td class="p-3"><input type="number" value="${u.points}" onchange="updateUserPts(${u.id}, this.value)" class="w-24 text-center text-blue-400"></td>
-                    <td class="p-3">
-                        <button onclick="delUser(${u.id})" class="text-red-500 text-xs hover:underline">حذف</button>
-                    </td>
-                </tr>
-            `).join("");
-        }
-
-        function renderAdminShop() {
-            admin_shop_table.innerHTML = db.shop.map(i => `
-                <tr class="border-b border-white/5">
-                    <td class="p-3"><input type="text" value="${i.name}" onchange="updateShopItem(${i.id}, 'name', this.value)" class="w-full"></td>
-                    <td class="p-3"><input type="number" value="${i.price}" onchange="updateShopItem(${i.id}, 'price', this.value)" class="w-24 text-center text-green-400"></td>
-                    <td class="p-3">
-                        <button onclick="delShopItem(${i.id})" class="text-red-500 text-xs hover:underline"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join("");
-        }
-
-        /* SHOP ACTIONS */
-        function addShopItem() {
-            db.shop.push({ id: Date.now(), name: "سلعة جديدة", price: 1000 });
-            save(); renderAdminShop();
-        }
-
-        function updateShopItem(id, field, val) {
-            let item = db.shop.find(x => x.id === id);
-            if (field === 'price') item.price = parseInt(val) || 0;
-            else item.name = val;
-            save();
-        }
-
-        function delShopItem(id) {
-            db.shop = db.shop.filter(x => x.id !== id);
-            save(); renderAdminShop();
-        }
-
-        /* USER ACTIONS */
-        function updateUserPts(id, val) {
-            let u = db.users.find(x => x.id === id);
-            u.points = parseInt(val) || 0;
-            if(me.id === u.id) me.points = u.points;
-            save();
-        }
-
-        function delUser(id) {
-            if(confirm('حذف هذا المستخدم؟')){
-                db.users = db.users.filter(x => x.id !== id);
-                save(); renderAdminUsers();
-            }
-        }
-    </script>
 </body>
-  </html>
-  
+        </html>
