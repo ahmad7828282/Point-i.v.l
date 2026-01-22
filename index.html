@@ -73,7 +73,6 @@ body{
   font-size:0.85rem;
   cursor:pointer;
 }
-/* إعلان */
 #announcement{
   background:rgba(0,255,136,0.1);
   border:1px solid var(--green);
@@ -114,7 +113,6 @@ body{
 <!-- APP -->
 <div id="app" class="hidden max-w-6xl mx-auto space-y-4">
 
-<!-- إعلان يظهر عند الجميع -->
 <div id="announcement"></div>
 
 <header class="card flex justify-between items-center">
@@ -131,14 +129,12 @@ body{
 <!-- لوحة الأدمن -->
 <div id="adminPanel" class="hidden space-y-4">
 
-  <!-- كتابة إعلان -->
   <div class="card">
     <h4 class="text-green font-bold">📢 كتابة إعلان</h4>
     <textarea id="announceInput" class="input mb-2" placeholder="اكتب نص الإعلان هنا"></textarea>
     <button onclick="updateAnnouncement()" class="btn text-sm">نشر الإعلان</button>
   </div>
 
-  <!-- إدارة النقاط -->
   <div class="card">
     <h4 class="text-green font-bold">إدارة النقاط</h4>
     <select id="pointUser" class="input mb-2"></select>
@@ -149,7 +145,6 @@ body{
     </div>
   </div>
 
-  <!-- إدارة السلع -->
   <div class="card">
     <h4 class="text-green font-bold">إدارة السلع</h4>
     <input id="itemName" class="input mb-2" placeholder="اسم السلعة">
@@ -158,22 +153,25 @@ body{
     <button onclick="confirmAction('addItem')" class="btn text-sm">إضافة السلعة</button>
   </div>
 
-  <!-- أعلى 3 لاعبين -->
   <div class="card">
     <h4 class="text-green font-bold">🏆 أعلى 3 لاعبين</h4>
     <div id="topUsers" class="text-sm space-y-1"></div>
   </div>
 
-  <!-- حذف حسابات الأعضاء -->
   <div class="card">
     <h4 class="text-red-500 font-bold">🗑️ حذف حساب عضو</h4>
     <select id="deleteUserSelect" class="input mb-2"></select>
     <button onclick="deleteUser()" class="btn text-sm bg-red-500 hover:bg-red-600">حذف الحساب</button>
   </div>
 
+  <!-- LOGS -->
+  <div class="card">
+    <h4 class="text-green font-bold">📜 سجل العمليات</h4>
+    <div id="logsBox" class="text-xs max-h-64 overflow-auto"></div>
+  </div>
+
 </div>
 
-<!-- العروض -->
 <div class="card">
   <h3 class="text-green mb-2">🛒 العروض المتاحة</h3>
   <div id="market" class="grid sm:grid-cols-2 gap-4"></div>
@@ -197,27 +195,26 @@ body{
 /* ===== DATA ===== */
 let db = JSON.parse(localStorage.getItem("ivl-db"));
 if(!db || !db.users){
-  db={users:[{id:1,user:"admin",pass:"5365360",char:"ADMIN",guild:"IVL ROOT",points:999999,role:"admin"}],items:[],announcement:"مرحباً بكم!"};
+  db={users:[{id:1,user:"admin",pass:"5365360",char:"ADMIN",guild:"IVL ROOT",points:999999,role:"admin"}],items:[],announcement:"مرحباً بكم!",logs:[]};
   localStorage.setItem("ivl-db",JSON.stringify(db));
 }
+if(!db.logs) db.logs=[];
 let session=null;
 
-/* ===== AUTH ===== */
-function login(){
-  const u=document.getElementById("loginUser").value.trim();
-  const p=document.getElementById("loginPass").value.trim();
-  const f=db.users.find(x=>x.user===u && x.pass===p);
-  if(!f){alert("❌ بيانات غير صحيحة");return;}
-  session=f; init();
-}
-function register(){
-  const u=ru.value.trim(),p=rp.value.trim(),c=rc.value.trim(),g=rg.value.trim();
-  if(!u||!p||!c||!g){alert("أكمل كل الحقول");return;}
-  if(db.users.find(x=>x.user===u)){alert("المستخدم موجود");return;}
-  db.users.push({id:Date.now(),user:u,pass:p,char:c,guild:g,points:0,role:"member"});
+/* ===== LOGS ===== */
+function addLog(text){
+  db.logs.unshift({time:new Date().toLocaleString("ar"),by:session?session.char:"SYSTEM",action:text});
   localStorage.setItem("ivl-db",JSON.stringify(db));
-  alert("✅ تم إنشاء الحساب");
+  renderLogs();
 }
+function renderLogs(){
+  if(!logsBox) return;
+  logsBox.innerHTML=db.logs.slice(0,5).map(l=>`<div class="border-b border-green/20 pb-1 mb-1"><div class="opacity-60">${l.time}</div><div>${l.by} ➜ ${l.action}</div></div>`).join("");
+}
+
+/* ===== AUTH ===== */
+function login(){const u=loginUser.value.trim();const p=loginPass.value.trim();const f=db.users.find(x=>x.user===u&&x.pass===p);if(!f){alert("❌ بيانات غير صحيحة");return;}session=f;init();addLog("🔑 تسجيل دخول");}
+function register(){const u=ru.value.trim(),p=rp.value.trim(),c=rc.value.trim(),g=rg.value.trim();if(!u||!p||!c||!g){alert("أكمل كل الحقول");return;}if(db.users.find(x=>x.user===u)){alert("المستخدم موجود");return;}db.users.push({id:Date.now(),user:u,pass:p,char:c,guild:g,points:0,role:"member"});localStorage.setItem("ivl-db",JSON.stringify(db));alert("✅ تم إنشاء الحساب");addLog(`🆕 إنشاء حساب ${c}`);}
 
 /* ===== INIT ===== */
 function init(){
@@ -226,131 +223,27 @@ function init(){
   meChar.textContent=session.char;
   meGuild.textContent=session.guild;
   mePoints.textContent=session.points;
-
-  announcement.textContent = db.announcement || "";
-
+  announcement.textContent=db.announcement||"";
   if(session.role==="admin"){
     adminPanel.classList.remove("hidden");
     updatePointUsers();
     updateTopUsers();
     updateDeleteUserList();
+    renderLogs();
   }
-
   renderMarket();
 }
 
-/* ===== UPDATE ANNOUNCEMENT ===== */
-function updateAnnouncement(){
-  const text = announceInput.value.trim();
-  if(!text){alert("اكتب نص الإعلان"); return;}
-  db.announcement = text;
-  localStorage.setItem("ivl-db",JSON.stringify(db));
-  announcement.textContent = text;
-  announceInput.value = "";
-}
-
-/* ===== DELETE USER (Admin Only) ===== */
-function updateDeleteUserList(){
-  deleteUserSelect.innerHTML = db.users
-    .filter(u => u.role !== "admin")
-    .map(u => `<option value="${u.id}">${u.char} (${u.user})</option>`)
-    .join("");
-}
-
-function deleteUser(){
-  const uid = +deleteUserSelect.value;
-  if(!uid){alert("اختر حسابًا للحذف"); return;}
-  if(!confirm("هل أنت متأكد من حذف هذا الحساب نهائيًا؟ ❌")) return;
-
-  db.users = db.users.filter(u => u.id !== uid);
-  localStorage.setItem("ivl-db", JSON.stringify(db));
-  alert("تم حذف الحساب ✅");
-  updateDeleteUserList();
-  updatePointUsers();
-  updateTopUsers();
-}
-
-/* ===== MARKET ===== */
-function renderMarket(){
-  market.innerHTML=db.items.map(i=>`
-    <div class="card flex justify-between p-2">
-      <div>
-        <b>${i.name}</b>
-        <div class="text-green text-xs">${i.price} نقطة</div>
-        <div class="text-xs text-green/70">الفئة: ${i.category||'عام'}</div>
-      </div>
-      <button class="btn text-sm" onclick="confirmAction('buy',${i.id})">شراء</button>
-    </div>
-  `).join("");
-}
-
-/* ===== MODAL ===== */
-function confirmAction(type,id=null){
-  modal.classList.remove("hidden");
-  let title="",text="";
-  switch(type){
-    case 'buy':
-      let item=db.items.find(x=>x.id===id);
-      title="تأكيد الشراء"; text=`هل أنت متأكد من شراء "${item.name}" مقابل ${item.price} نقطة؟`; break;
-    case 'addPoints': title="تأكيد الإضافة"; text="هل أنت متأكد من إضافة النقاط؟"; break;
-    case 'removePoints': title="تأكيد الحذف"; text="هل أنت متأكد من حذف النقاط؟"; break;
-    case 'addItem': title="تأكيد الإضافة"; text="هل أنت متأكد من إضافة السلعة؟"; break;
-  }
-  modalTitle.textContent=title; modalText.textContent=text;
-  modalConfirm.onclick=()=>{ modal.classList.add("hidden"); handleAction(type,id); }
-  modalCancel.onclick=()=>{ modal.classList.add("hidden"); }
-}
-
-/* ===== HANDLE ACTION ===== */
-function handleAction(type,id){
-  switch(type){
-    case 'buy':
-      let item=db.items.find(x=>x.id===id);
-      if(session.points<item.price){alert("رصيدك غير كافي");return;}
-      session.points-=item.price;
-      localStorage.setItem("ivl-db",JSON.stringify(db));
-      mePoints.textContent=session.points;
-      let msg=`*˹🫀˼•طـــلـــب شـــراء:•*\n\n*✘ الٕمـسـتـخـدم: 〘 ${session.char} 〙•*\n*✘ الـسـلـعـة: 〘 ${item.name} 〙•*\n*✘ الـسـعـر: 〘 ${item.price} 〙•*\n> *𝑰.𝑽.𝑳  𖠛 🌙黒 ايــࢪفـال*`;
-      window.open("https://wa.me/963936427273?text="+encodeURIComponent(msg),"_blank");
-      break;
-    case 'addPoints':
-      let uid=+pointUser.value,amt=+pointAmount.value;
-      if(!amt||amt<=0){alert("أدخل رقم صحيح"); return;}
-      let u=db.users.find(x=>x.id===uid);
-      u.points+=amt;
-      if(u.id===session.id) mePoints.textContent=session.points;
-      localStorage.setItem("ivl-db",JSON.stringify(db));
-      updateTopUsers();
-      break;
-    case 'removePoints':
-      uid=+pointUser.value; amt=+pointAmount.value;
-      if(!amt||amt<=0){alert("أدخل رقم صحيح"); return;}
-      u=db.users.find(x=>x.id===uid);
-      u.points=Math.max(0,u.points-amt);
-      if(u.id===session.id) mePoints.textContent=session.points;
-      localStorage.setItem("ivl-db",JSON.stringify(db));
-      updateTopUsers();
-      break;
-    case 'addItem':
-      let name=itemName.value.trim();
-      let price=+itemPrice.value;
-      let cat=itemCategory.value.trim();
-      if(!name||!price){alert("أكمل الاسم والسعر"); return;}
-      db.items.push({id:Date.now(),name,price,category:cat});
-      localStorage.setItem("ivl-db",JSON.stringify(db));
-      itemName.value=itemPrice.value=itemCategory.value="";
-      renderMarket();
-      break;
-  }
-}
-
-/* ===== ADMIN FUNCTIONS ===== */
-function updatePointUsers(){ pointUser.innerHTML=db.users.map(u=>`<option value="${u.id}">${u.char} (${u.user})</option>`).join(""); }
-function updateTopUsers(){
-  const top=db.users.slice().sort((a,b)=>b.points-a.points).slice(0,3);
-  topUsers.innerHTML=top.map((u,i)=>`${i+1}. ${u.char} - ${u.points} نقطة`).join("<br>");
-}
+/* ===== باقي الدوال ===== */
+function updateAnnouncement(){const text=announceInput.value.trim();if(!text){alert("اكتب نص الإعلان");return;}db.announcement=text;localStorage.setItem("ivl-db",JSON.stringify(db));announcement.textContent=text;announceInput.value="";addLog(`📢 تم نشر إعلان: ${text}`);}
+function updatePointUsers(){pointUser.innerHTML=db.users.map(u=>`<option value="${u.id}">${u.char} (${u.user})</option>`).join("");}
+function updateTopUsers(){const top=db.users.slice().sort((a,b)=>b.points-a.points).slice(0,3);topUsers.innerHTML=top.map((u,i)=>`${i+1}. ${u.char} - ${u.points} نقطة`).join("<br>");}
+function updateDeleteUserList(){deleteUserSelect.innerHTML=db.users.filter(u=>u.role!=="admin").map(u=>`<option value="${u.id}">${u.char} (${u.user})</option>`).join("");}
+function deleteUser(){const uid=+deleteUserSelect.value;if(!uid){alert("اختر حسابًا للحذف");return;}if(!confirm("هل أنت متأكد من حذف هذا الحساب نهائيًا؟ ❌")) return;let u=db.users.find(x=>x.id===uid);addLog(`🗑️ تم حذف الحساب: ${u.char}`);db.users=db.users.filter(u=>u.id!==uid);localStorage.setItem("ivl-db",JSON.stringify(db));alert("تم حذف الحساب ✅");updateDeleteUserList();updatePointUsers();updateTopUsers();}
+function renderMarket(){market.innerHTML=db.items.map(i=>`<div class="card flex justify-between p-2"><div><b>${i.name}</b><div class="text-green text-xs">${i.price} نقطة</div><div class="text-xs text-green/70">الفئة: ${i.category||'عام'}</div></div><button class="btn text-sm" onclick="confirmAction('buy',${i.id})">شراء</button></div>`).join("");}
+function confirmAction(type,id=null){modal.classList.remove("hidden");let title="",text="";switch(type){case 'buy':let item=db.items.find(x=>x.id===id);title="تأكيد الشراء";text=`هل أنت متأكد من شراء "${item.name}" مقابل ${item.price} نقطة؟`;break;case 'addPoints':title="تأكيد الإضافة";text="هل أنت متأكد من إضافة النقاط؟";break;case 'removePoints':title="تأكيد الحذف";text="هل أنت متأكد من حذف النقاط؟";break;case 'addItem':title="تأكيد الإضافة";text="هل أنت متأكد من إضافة السلعة؟";break;}modalTitle.textContent=title;modalText.textContent=text;modalConfirm.onclick=()=>{modal.classList.add("hidden");handleAction(type,id)};modalCancel.onclick=()=>{modal.classList.add("hidden")}}
+function handleAction(type,id){switch(type){case 'buy':let item=db.items.find(x=>x.id===id);if(session.points<item.price){alert("رصيدك غير كافي");return;}session.points-=item.price;localStorage.setItem("ivl-db",JSON.stringify(db));mePoints.textContent=session.points;addLog(`🛒 تم شراء: ${item.name} مقابل ${item.price} نقطة`);let msg=`*˹🫀˼•طـــلـــب شـــراء:•*\n\n*✘ الٕمـسـتـخـدم: 〘 ${session.char} 〙•*\n*✘ الـسـلـعـة: 〘 ${item.name} 〙•*\n*✘ الـسـعـر: 〘 ${item.price} 〙•*\n> *𝑰.𝑽.𝑳  𖠛 🌙黒 ايــࢪفـال*`;window.open("https://wa.me/963936427273?text="+encodeURIComponent(msg),"_blank");break;case 'addPoints':let uid=+pointUser.value,amt=+pointAmount.value;if(!amt||amt<=0){alert("أدخل رقم صحيح");return;}let u=db.users.find(x=>x.id===uid);u.points+=amt;if(u.id===session.id) mePoints.textContent=session.points;localStorage.setItem("ivl-db",JSON.stringify(db));updateTopUsers();addLog(`➕ تم إضافة ${amt} نقطة لـ ${u.char}`);break;case 'removePoints':uid=+pointUser.value;amt=+pointAmount.value;if(!amt||amt<=0){alert("أدخل رقم صحيح");return;}u=db.users.find(x=>x.id===uid);u.points=Math.max(0,u.points-amt);if(u.id===session.id) mePoints.textContent=session.points;localStorage.setItem("ivl-db",JSON.stringify(db));updateTopUsers();addLog(`➖ تم حذف ${amt} نقطة من ${u.char}`);break;case 'addItem':let name=itemName.value.trim();let price=+itemPrice.value;let cat=itemCategory.value.trim();if(!name||!price){alert("أكمل الاسم والسعر");return;}db.items.push({id:Date.now(),name,price,category:cat});localStorage.setItem("ivl-db",JSON.stringify(db));itemName.value=itemPrice.value=itemCategory.value="";renderMarket();addLog(`🆕 تم إضافة سلعة: ${name} بسعر ${price}`);break;}}
 </script>
 
 </body>
-        </html>
+  </html>
